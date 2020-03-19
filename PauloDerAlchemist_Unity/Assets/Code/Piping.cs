@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace PDA {
+
+	enum inputState {
+		NON,
+		MOVE,
+		PLACE,
+	}
 	public class Piping : MonoBehaviour {
 
 		[Header("References")]
@@ -13,6 +19,8 @@ namespace PDA {
 		[SerializeField] float m_snapToPointDistance = 3;
 		[SerializeField] float m_snapToLineDistance = 1;
 		[SerializeField] float m_escapeDistance = 1;
+
+		[SerializeField] inputState m_currentState = inputState.NON;
 
 		Transform pointHolder;
 
@@ -34,14 +42,52 @@ namespace PDA {
 				Debug.DrawLine(it.m_start.position, it.m_stop.position, Color.gray);
 			}
 
+			switch(m_currentState) {
+			case inputState.NON:
+				break;
+			case inputState.MOVE:
+				UpdateMove();
+				break;
+			case inputState.PLACE:
+				UpdatePlace();
+				break;
+			default:
+				break;
+			}
+		}
+
+		Point m_target;
+
+		void UpdateMove() {
+			PositionPreview(m_target == null);
+
+			if(Input.GetMouseButtonDown(0)) {
+				m_target = m_currentPoint;
+				if(m_target == null) {
+					return;
+				}
+				m_target.m_isMoving = true;
+			}
+			if(m_target == null) {
+				return;
+			}
+
+			if(Input.GetMouseButtonUp(0)) {
+				m_target.m_isMoving = false;
+				m_target = null;
+				return;
+			}
+
+			m_target.position = r_curser.transform.position;
+		}
+
+		void UpdatePlace() {
 			PositionPreview();
 
 			if(Input.GetMouseButtonDown(0)) {
 				m_startPos = r_curser.transform.position;
-			}
-
-			if(Input.GetMouseButtonUp(0) &&
-				Vector3.Distance(m_startPos, r_curser.transform.position) < m_escapeDistance) {
+			} else if(Input.GetMouseButtonUp(0) &&
+				 Vector3.Distance(m_startPos, r_curser.transform.position) < m_escapeDistance) {
 				if(m_firstPos == null) {
 					m_firstPos = r_curser.transform.position;
 					m_firstPoint = m_currentPoint;
@@ -76,25 +122,29 @@ namespace PDA {
 			}
 		}
 
-		void PositionPreview() {
+		void PositionPreview(bool snap = true) {
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			if(Physics.Raycast(ray, out RaycastHit hit)) {
 				var snapPoint = findNearsetPoint(m_points, hit.point, m_snapToPointDistance);
-				if(snapPoint != null) {
-					r_curser.transform.position = snapPoint.position;
-					m_currentPoint = snapPoint; //TODO: bad Pracktice
-					return;
+				if(snap) {
+					if(snapPoint != null) {
+						r_curser.transform.position = snapPoint.position;
+						m_currentPoint = snapPoint; //TODO: bad Pracktice
+						return;
+					}
+				}
+
+				m_currentPoint = null;
+
+				if(snap) {
+					var snapPos = findNearestPointOnLine(Pipe.s_references, hit.point, m_snapToLineDistance);
+					if(snapPos != null) {
+						r_curser.transform.position = snapPos.Value;
+						return;
+					}
 				}
 
 				r_curser.transform.position = hit.point;
-				m_currentPoint = null;
-
-				var snapPos = findNearestPointOnLine(Pipe.s_references, hit.point, m_snapToLineDistance);
-				if(snapPos != null) {
-					r_curser.transform.position = snapPos.Value;
-					return;
-				}
-
 			}
 
 			return;

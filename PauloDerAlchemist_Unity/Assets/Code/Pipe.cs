@@ -25,7 +25,7 @@ namespace PDA {
 		}
 
 		private void Update() {
-			if(m_targetStart.IsMoving || m_targetStop.IsMoving) {
+			if(m_targetStart.m_isMoving || m_targetStop.m_isMoving) {
 				Recalculate(m_targetStart.position, m_targetStop.position);
 			}
 		}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4178629165416539457}
   - component: {fileID: 4852450887455568754}
   - component: {fileID: 4482913653865476061}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88,7 +88,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3914598704325245472}
   - component: {fileID: 309344793112495523}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Pipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 2476268933604206928}
   - component: {fileID: 4691593183603294692}
   - component: {fileID: 8795160938383461566}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 2791029602536764880}
   - component: {fileID: 4177664882929645268}
   - component: {fileID: 5922488497636031307}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Sphere (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -292,7 +292,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8432973642579535100}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: pipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
