@@ -3,59 +3,75 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace PDA {
-
-	[System.Serializable]
-	class Line {
-		public Transform m_a;
-		public Transform m_b;
-	}
-
 	public class Piping : MonoBehaviour {
 
 		[Header("References")]
 		[SerializeField] GameObject r_curser;
-		[SerializeField] GameObject r_pipe;
+		[SerializeField] GameObject p_pipe;
 
 		[Header("Variables")]
 		[SerializeField] float m_snapToPointDistance = 3;
 		[SerializeField] float m_snapToLineDistance = 1;
 		[SerializeField] float m_escapeDistance = 1;
 
-		[SerializeField] List<Line> m_pipes;
+		Transform pointHolder;
 
-		Vector3? firstPosition = null;
-		Vector3 startPos;
+		Vector3 m_startPos;
+		Vector3? m_firstPos = null;
+		Point m_firstPoint;
+		Pipe m_firstLineToSplit;
+		List<Point> m_points = new List<Point>();
+		Point m_currentPoint;
+		Pipe m_currentLineToSplit;
+
+		private void Start() {
+			pointHolder = new GameObject("PointHolder").transform;
+		}
+
 		void Update() {
 
-			foreach(var it in m_pipes) {
-				Debug.DrawLine(it.m_a.position, it.m_b.position, Color.gray);
+			foreach(var it in Pipe.s_references) {
+				Debug.DrawLine(it.m_start.position, it.m_stop.position, Color.gray);
 			}
 
 			PositionPreview();
 
 			if(Input.GetMouseButtonDown(0)) {
-				startPos = r_curser.transform.position;
+				m_startPos = r_curser.transform.position;
 			}
 
 			if(Input.GetMouseButtonUp(0) &&
-				Vector3.Distance(startPos, r_curser.transform.position) < m_escapeDistance) {
-				if(firstPosition == null) {
-					firstPosition = r_curser.transform.position;
+				Vector3.Distance(m_startPos, r_curser.transform.position) < m_escapeDistance) {
+				if(m_firstPos == null) {
+					m_firstPos = r_curser.transform.position;
+					m_firstPoint = m_currentPoint;
+					m_firstLineToSplit = m_currentLineToSplit;
 				} else {
-					var tmp = Instantiate(r_pipe);
+					if(m_firstPoint == null) {
+						m_firstPoint = new GameObject().AddComponent<Point>();
+						m_firstPoint.position = m_firstPos.Value;
+						m_firstPoint.transform.parent = pointHolder;
+						m_points.Add(m_firstPoint);
 
-					var a = tmp.transform.GetChild(0);
-					var b = tmp.transform.GetChild(1);
+						if(m_firstLineToSplit != null) {
+							m_firstLineToSplit.Split(m_firstPoint);
+						}
+					}
+					if(m_currentPoint == null) {
+						m_currentPoint = new GameObject().AddComponent<Point>();
+						m_currentPoint.position = r_curser.transform.position;
+						m_currentPoint.transform.parent = pointHolder;
+						m_points.Add(m_currentPoint);
 
-					tmp.transform.position = firstPosition.Value;
-					tmp.transform.rotation = Quaternion.LookRotation(r_curser.transform.position - firstPosition.Value, Vector3.up);
-					tmp.transform.GetChild(2).localScale = new Vector3(1, 1, Vector3.Distance(r_curser.transform.position, firstPosition.Value));
-					b.localPosition = new Vector3(0, 0, Vector3.Distance(r_curser.transform.position, firstPosition.Value));
-					//b.transform.position = r_preview.transform.position;
+						if(m_currentLineToSplit != null) {
+							m_currentLineToSplit.Split(m_currentPoint);
+						}
+					}
 
-					m_pipes.Add(new Line { m_a = a.transform, m_b = b.transform });
+					var element = Instantiate(p_pipe).GetComponent<Pipe>();
+					element.Init(m_firstPoint, m_currentPoint);
 
-					firstPosition = null;
+					m_firstPos = null;
 				}
 			}
 		}
@@ -63,19 +79,22 @@ namespace PDA {
 		void PositionPreview() {
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			if(Physics.Raycast(ray, out RaycastHit hit)) {
-				var snapPoint = findNearsetPoint(m_pipes, hit.point, m_snapToPointDistance);
+				var snapPoint = findNearsetPoint(m_points, hit.point, m_snapToPointDistance);
 				if(snapPoint != null) {
-					r_curser.transform.position = snapPoint.Value;
-					return;
-				}
-
-				snapPoint = findNearestPointOnLine(m_pipes, hit.point, m_snapToLineDistance);
-				if(snapPoint != null) {
-					r_curser.transform.position = snapPoint.Value;
+					r_curser.transform.position = snapPoint.position;
+					m_currentPoint = snapPoint; //TODO: bad Pracktice
 					return;
 				}
 
 				r_curser.transform.position = hit.point;
+				m_currentPoint = null;
+
+				var snapPos = findNearestPointOnLine(Pipe.s_references, hit.point, m_snapToLineDistance);
+				if(snapPos != null) {
+					r_curser.transform.position = snapPos.Value;
+					return;
+				}
+
 			}
 
 			return;
@@ -87,7 +106,7 @@ namespace PDA {
 		 * @param MaxValue	maximum distance (not included)
 		 * @return			the nearest found entry in the in the array
 		 */
-		Vector3? findNearsetPoint(List<Line> targets, Vector3 position, float MaxValue = -1) {
+		Point findNearsetPoint(List<Point> targets, Vector3 position, float MaxValue = -1) {
 			if(MaxValue < 0) {
 				MaxValue = float.MaxValue;
 			}
@@ -95,19 +114,13 @@ namespace PDA {
 				return null;
 			}
 
-			Vector3? element = null;
+			Point element = null;
 			foreach(var it in targets) {
 				//Optimize: squared dist
-				float dist = Vector3.Distance(position, it.m_a.position);
+				float dist = Vector3.Distance(position, it.position);
 				if(dist < MaxValue) {
 					MaxValue = dist;
-					element = it.m_a.position;
-				}
-
-				dist = Vector3.Distance(position, it.m_b.position);
-				if(dist < MaxValue) {
-					MaxValue = dist;
-					element = it.m_b.position;
+					element = it;
 				}
 			}
 
@@ -121,7 +134,7 @@ namespace PDA {
 		 * @param MaxValue	maximum distance (not included)
 		 * @return			the nearest found position on a line
 		 */
-		Vector3? findNearestPointOnLine(List<Line> targets, Vector3 position, float MaxValue = -1) {
+		Vector3? findNearestPointOnLine(List<Pipe> targets, Vector3 position, float MaxValue = -1) {
 			if(MaxValue < 0) {
 				MaxValue = float.MaxValue;
 			}
@@ -130,9 +143,10 @@ namespace PDA {
 			}
 
 			Vector3? element = null;
+			m_currentLineToSplit = null;
 			foreach(var it in targets) {
-				Vector3 line = it.m_b.position - it.m_a.position;
-				Vector3 target = position - it.m_a.position;
+				Vector3 line = it.m_stop.position - it.m_start.position;
+				Vector3 target = position - it.m_start.position;
 
 				float distToLot = Vector3.Dot(target, line) / Vector3.Dot(line, line);
 
@@ -144,7 +158,8 @@ namespace PDA {
 
 				if((lot - target).magnitude < MaxValue) {
 					MaxValue = (lot - target).magnitude;
-					element = lot + it.m_a.position;
+					element = lot + it.m_start.position;
+					m_currentLineToSplit = it;//TODO: bad Pracktice
 				}
 			}
 
