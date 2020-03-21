@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4178629165416539457}
   - component: {fileID: 4852450887455568754}
   - component: {fileID: 4482913653865476061}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87,8 +87,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3914598704325245472}
-  - component: {fileID: 309344793112495523}
-  m_Layer: 2
+  - component: {fileID: 2481829139820656186}
+  m_Layer: 0
   m_Name: Pipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -112,7 +112,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &309344793112495523
+--- !u!114 &2481829139820656186
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,12 +121,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3406870577762076169}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 719c8f9bee57c2542b75d5149fe4d03e, type: 3}
+  m_Script: {fileID: 11500000, guid: a6595888b50c8724880816c768bd0923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  r_start: {fileID: 4178629165416539457}
-  r_stop: {fileID: 2791029602536764880}
+  r_end: {fileID: 2791029602536764880}
   r_pipe: {fileID: 8432973642579535100}
+  r_col: {fileID: 3145623604589337716}
 --- !u!1 &5464061176636332593
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 2476268933604206928}
   - component: {fileID: 4691593183603294692}
   - component: {fileID: 8795160938383461566}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 2791029602536764880}
   - component: {fileID: 4177664882929645268}
   - component: {fileID: 5922488497636031307}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Sphere (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -292,7 +292,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8432973642579535100}
-  m_Layer: 2
+  - component: {fileID: 3145623604589337716}
+  m_Layer: 0
   m_Name: pipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -314,3 +315,17 @@ Transform:
   m_Father: {fileID: 3914598704325245472}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &3145623604589337716
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9042539310640262723}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.2
+  m_Height: 1
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0.5}
