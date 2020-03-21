@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PDA {
-	public class Pipe : MonoBehaviour {
+namespace PDATest1 {
+	public class OldPipe : MonoBehaviour {
 
-		public static List<Pipe> s_references = new List<Pipe>();
+		public static List<OldPipe> s_references = new List<OldPipe>();
 
 		[SerializeField] Transform r_start;
 		[SerializeField] Transform r_stop;
@@ -38,7 +38,7 @@ namespace PDA {
 		}
 
 		public void Split(Point pos) {
-			var element = Instantiate(this.gameObject).GetComponent<Pipe>();
+			var element = Instantiate(this.gameObject).GetComponent<OldPipe>();
 
 			element.Init(pos, m_targetStop);
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PDA {
+namespace PDATest1 {
 	public class Point : MonoBehaviour {
 
 		[SerializeField] bool m_canBeMoved = true;

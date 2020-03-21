@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PDA {
+namespace PDATest1 {
 
 	enum inputState {
 		NON,
@@ -27,10 +27,10 @@ namespace PDA {
 		Vector3 m_startPos;
 		Vector3? m_firstPos = null;
 		Point m_firstPoint;
-		Pipe m_firstLineToSplit;
+		OldPipe m_firstLineToSplit;
 		List<Point> m_points = new List<Point>();
 		Point m_currentPoint;
-		Pipe m_currentLineToSplit;
+		OldPipe m_currentLineToSplit;
 
 		private void Start() {
 			pointHolder = new GameObject("PointHolder").transform;
@@ -38,7 +38,7 @@ namespace PDA {
 
 		void Update() {
 
-			foreach(var it in Pipe.s_references) {
+			foreach(var it in OldPipe.s_references) {
 				Debug.DrawLine(it.m_start.position, it.m_stop.position, Color.gray);
 			}
 
@@ -114,7 +114,7 @@ namespace PDA {
 						}
 					}
 
-					var element = Instantiate(p_pipe).GetComponent<Pipe>();
+					var element = Instantiate(p_pipe).GetComponent<OldPipe>();
 					element.Init(m_firstPoint, m_currentPoint);
 
 					m_firstPos = null;
@@ -137,7 +137,7 @@ namespace PDA {
 				m_currentPoint = null;
 
 				if(snap) {
-					var snapPos = findNearestPointOnLine(Pipe.s_references, hit.point, m_snapToLineDistance);
+					var snapPos = findNearestPointOnLine(OldPipe.s_references, hit.point, m_snapToLineDistance);
 					if(snapPos != null) {
 						r_curser.transform.position = snapPos.Value;
 						return;
@@ -184,7 +184,7 @@ namespace PDA {
 		 * @param MaxValue	maximum distance (not included)
 		 * @return			the nearest found position on a line
 		 */
-		Vector3? findNearestPointOnLine(List<Pipe> targets, Vector3 position, float MaxValue = -1) {
+		Vector3? findNearestPointOnLine(List<OldPipe> targets, Vector3 position, float MaxValue = -1) {
 			if(MaxValue < 0) {
 				MaxValue = float.MaxValue;
 			}
