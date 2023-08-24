@@ -22,6 +22,9 @@ public class PipeInputHandler : MonoBehaviour
 
         over.transform.localPosition = new Vector3(aTarget.x / 2, over.transform.localPosition.y, aTarget.z / 2);
         over.transform.localScale = new Vector3(1, 1, aTarget.magnitude);
-        over.transform.localRotation = Quaternion.LookRotation(aTarget);
+        if (aTarget.magnitude > 0)
+        {
+            over.transform.localRotation = Quaternion.LookRotation(aTarget);
+        }
     }
 }

@@ -1,40 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public enum Material
-{
-    Feuer = 0, Wasser = 1, Erde = 2, Luft = 3,
-    Helium = 4, Ozon = 5, Kohlenstoff = 6,
-    Methanol = 7, Propan = 8, Ethan = 9, Acetaldehyd = 10,
-    Polyvinylchlorid = 11, Polytetrafluorethylen = 12, Siliciumdioxid = 13,
-    Plastik = 14, Glas = 15,
-    Stahl = 16, Aluminium = 17, Messing = 18,
-    Plutonium = 19, Radon = 20, Uran = 21, Fermium = 22,
-    Silicium = 23, Wolfram = 24, Silber = 25,
-    Quecksilber = 26, Platin = 27,
-    Gold = 28
-};
-
-public struct Combination
-{
-    public Material OutPrime;
-    public Material OutSecondary;
-    public int XMax;
-    public int YMax;
-    public int XCurve;
-    public int YCurve;
-    public int AmpCurve;
-    public int DevCurve;
-};
-
+using UnityEngine.UI;
+using TMPro;
 
 public class Machine : MonoBehaviour
 {
-    [SerializeField] private Port PortIn1;
-    [SerializeField] private Port PortIn2;
+    [SerializeField] private Transform PortIn1;
+    [SerializeField] private Transform PortIn2;
     [SerializeField] private Port PortOut1;
     [SerializeField] private Port PortOut2;
+    [SerializeField] private Slider slider;
+    [SerializeField] private TMP_Text text;
+    [SerializeField] private Canvas canvas;
 
     private PipeInputHandler myFirstPipe;
     private PipeInputHandler mySecondPipe;
@@ -43,12 +21,7 @@ public class Machine : MonoBehaviour
 
     const float MaxOutput = 50;
 
-    struct Pair
-    {
-        public Material Prime;
-        public Material Secondary;
-    }
-    static Dictionary<Pair, Combination> combinationAtlas;
+    public static Dictionary<Pair, Combination> combinationAtlas;
     private Combination myCombidantion;
     private float myRatio = 50;
     private bool myOn = true;
@@ -63,8 +36,10 @@ public class Machine : MonoBehaviour
 
         myFirstPipe = aFirstPipe;
         mySecondPipe = aSencondPipe;
-        myFirstPipe.Handle(PortIn1.transform.position);
-        mySecondPipe.Handle(PortIn2.transform.position);
+        myFirstPipe.Handle(PortIn1.position);
+        mySecondPipe.Handle(PortIn2.position);
+        text.text = myRatio.ToString();
+        canvas.worldCamera = Camera.main;
     }
 
     public void Handle(Vector3 aTarget)
@@ -78,8 +53,8 @@ public class Machine : MonoBehaviour
         aTarget.y = 0;
         transform.position = aTarget;
 
-        myFirstPipe.Handle(PortIn1.transform.position);
-        mySecondPipe.Handle(PortIn2.transform.position);
+        myFirstPipe.Handle(PortIn1.position);
+        mySecondPipe.Handle(PortIn2.position);
     }
 
     public void Set()
@@ -97,12 +72,23 @@ public class Machine : MonoBehaviour
             key.Prime = b;
             key.Secondary = a;
         }
+        if (!combinationAtlas.ContainsKey(key))
+        {
+            print(key.Prime + ":" + key.Secondary);
+            return;
+        }
         myCombidantion = combinationAtlas[key];
 
         PortOut1.material = myCombidantion.OutPrime;
         PortOut2.material = myCombidantion.OutSecondary;
 
         isSet = true;
+    }
+
+    public void HandleRatioChange()
+    {
+        myRatio = slider.value;
+        text.text = myRatio.ToString();
     }
 
     private void FixedUpdate()
@@ -133,9 +119,6 @@ public class Machine : MonoBehaviour
         var PrimeUsage = Efficiency / 16 * MaxOutput * myRatio / 100;
         var SecondaryUsage = (Efficiency / 16 * MaxOutput) - PrimeUsage;
 
-        PrimeUsage *= Time.fixedDeltaTime;
-        SecondaryUsage *= Time.fixedDeltaTime;
-
         float usage = myFirstPipe.port.Amount / PrimeUsage;
         if (mySecondPipe.port.Amount / SecondaryUsage < usage)
         {
@@ -145,6 +128,7 @@ public class Machine : MonoBehaviour
         {
             usage = 1;
         }
+        usage *= Time.fixedDeltaTime * 0.1f;
 
         PrimeUsage *= usage;
         SecondaryUsage *= usage;
