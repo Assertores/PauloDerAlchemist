@@ -105,4 +105,50 @@ public class Machine : MonoBehaviour
         isSet = true;
     }
 
+    private void FixedUpdate()
+    {
+        if (!isSet || !myOn)
+        {
+            return;
+        }
+
+        if (myFirstPipe.port.Amount == 0 || mySecondPipe.port.Amount == 0 || myRatio <= 0 || myRatio >= 100)
+        {
+            return;
+        }
+
+        float Efficiency;
+        float Out;
+        if (myCombidantion.XMax < (myRatio / 100) * 16)
+        {
+            Efficiency = -0.5f * (myCombidantion.YMax + 1) * Mathf.Cos((((myRatio / 100) * 16 - 16) * Mathf.PI) / (myCombidantion.XMax - 16)) + 0.5f * (myCombidantion.YMax + 1);
+        }
+        else
+        {
+            Efficiency = -0.5f * (myCombidantion.YMax + 1) * Mathf.Cos(((myRatio / 100) * 16 * Mathf.PI) / myCombidantion.XMax) + 0.5f * (myCombidantion.YMax + 1);
+        }
+
+        Out = (Mathf.Pow(2,-(((myRatio / 100) * 16 - myCombidantion.XCurve) * ((myRatio / 100) * 16 - myCombidantion.XCurve)) / (10 * myCombidantion.DevCurve)) * myCombidantion.AmpCurve + myCombidantion.YCurve) / 2 + 8;
+
+        var PrimeUsage = Efficiency / 16 * MaxOutput * myRatio / 100;
+        var SecondaryUsage = (Efficiency / 16 * MaxOutput) - PrimeUsage;
+
+        PrimeUsage *= Time.fixedDeltaTime;
+        SecondaryUsage *= Time.fixedDeltaTime;
+
+        float usage = myFirstPipe.port.Amount / PrimeUsage;
+        if (mySecondPipe.port.Amount / SecondaryUsage < usage)
+        {
+            usage = mySecondPipe.port.Amount / SecondaryUsage;
+        }
+        if (usage > 1)
+        {
+            usage = 1;
+        }
+
+        PrimeUsage *= usage;
+        SecondaryUsage *= usage;
+        PortOut1.Amount += (Out * Efficiency) / 256 * MaxOutput * usage;
+        PortOut2.Amount += ((16 - Out) * Efficiency) / 256 * MaxOutput * usage;
+    }
 }
