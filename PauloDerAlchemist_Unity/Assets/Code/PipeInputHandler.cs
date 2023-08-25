@@ -8,8 +8,11 @@ public class PipeInputHandler : MonoBehaviour
     [SerializeField] private GameObject endTop;
     [SerializeField] private GameObject over;
     [SerializeField] private GameObject down;
+    [SerializeField] private GameObject up;
+    [SerializeField] private GameObject startTop;
+    [SerializeField] private float scroolFactor;
 
-    public Port port;
+    [HideInInspector] public Port port;
 
     public void Handle(Vector3 aTarget)
     {
@@ -26,5 +29,18 @@ public class PipeInputHandler : MonoBehaviour
         {
             over.transform.localRotation = Quaternion.LookRotation(aTarget);
         }
+    }
+
+    public void HandleScroll(float aDelta)
+    {
+        var translation = new Vector3(0, aDelta * scroolFactor, 0);
+        up.transform.localScale += translation;
+        up.transform.localPosition += translation / 2;
+        down.transform.localScale += translation;
+        down.transform.localPosition += translation / 2;
+
+        startTop.transform.localPosition += translation;
+        over.transform.localPosition += translation;
+        endTop.transform.localPosition += translation;
     }
 }

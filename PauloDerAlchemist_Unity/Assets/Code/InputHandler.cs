@@ -6,6 +6,7 @@ public class InputHandler : MonoBehaviour
 {
     [SerializeField] private GameObject pipePrefab;
     [SerializeField] private GameObject machinePrefab;
+    [SerializeField] private CameraMovement cameraHandler;
     private PipeInputHandler pipe = null;
     private Machine machine = null;
 
@@ -25,7 +26,7 @@ public class InputHandler : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 if (hit.collider.CompareTag("Port"))
-                { 
+                {
                     pipe.Handle(hit.collider.transform.position);
                 }
                 else
@@ -55,6 +56,10 @@ public class InputHandler : MonoBehaviour
                     machine.Set();
                     machine = null;
                 }
+                //else if(hit.collider.CompareTag("Machine"))
+                //{
+                //    machine = hit.collider.transform.parent.GetComponent<Machine>();
+                //}
                 if (hit.collider.CompareTag("Port"))
                 {
                     if (!pipe)
@@ -75,7 +80,7 @@ public class InputHandler : MonoBehaviour
         }
     }
 
-    private void ConnectPorts(Vector3 aTarget, Transform aPortPosition) 
+    private void ConnectPorts(Vector3 aTarget, Transform aPortPosition)
     {
         var instance = Instantiate(machinePrefab);
         machine = instance.GetComponent<Machine>();

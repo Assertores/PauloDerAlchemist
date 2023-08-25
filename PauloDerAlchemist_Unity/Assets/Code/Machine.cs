@@ -13,6 +13,7 @@ public class Machine : MonoBehaviour
     [SerializeField] private Slider slider;
     [SerializeField] private TMP_Text text;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private float scroolFactor;
 
     private PipeInputHandler myFirstPipe;
     private PipeInputHandler mySecondPipe;
@@ -44,12 +45,6 @@ public class Machine : MonoBehaviour
 
     public void Handle(Vector3 aTarget)
     {
-        if (isSet)
-        {
-            print("ERROR: called Handle after Set");
-            return;
-        }
-
         aTarget.y = 0;
         transform.position = aTarget;
 
@@ -57,8 +52,21 @@ public class Machine : MonoBehaviour
         mySecondPipe.Handle(PortIn2.position);
     }
 
+    public void HandleScroll(float aDelta)
+    {
+        transform.Rotate(new Vector3(0, aDelta * scroolFactor, 0));
+
+        myFirstPipe.Handle(PortIn1.position);
+        mySecondPipe.Handle(PortIn2.position);
+    }
+
     public void Set()
     {
+        if(isSet)
+        {
+            return;
+        }
+
         var a = myFirstPipe.port.material;
         var b = mySecondPipe.port.material;
         Pair key;
@@ -88,7 +96,7 @@ public class Machine : MonoBehaviour
     public void HandleRatioChange()
     {
         myRatio = slider.value;
-        text.text = myRatio.ToString();
+        text.text = myRatio.ToString("0.00");
     }
 
     private void FixedUpdate()
@@ -99,6 +107,10 @@ public class Machine : MonoBehaviour
         }
 
         if (myFirstPipe.port.Amount == 0 || mySecondPipe.port.Amount == 0 || myRatio <= 0 || myRatio >= 100)
+        {
+            return;
+        }
+        if(PortOut1.Amount > 100 || PortOut2.Amount > 100)
         {
             return;
         }
@@ -134,5 +146,7 @@ public class Machine : MonoBehaviour
         SecondaryUsage *= usage;
         PortOut1.Amount += (Out * Efficiency) / 256 * MaxOutput * usage;
         PortOut2.Amount += ((16 - Out) * Efficiency) / 256 * MaxOutput * usage;
+        myFirstPipe.port.Amount -= PrimeUsage;
+        mySecondPipe.port.Amount -= SecondaryUsage;
     }
 }

@@ -478,6 +478,7 @@ MonoBehaviour:
     type: 3}
   machinePrefab: {fileID: 4700942653065589382, guid: 03fbfd57db1f71e4ab6d0bc72fade629,
     type: 3}
+  cameraHandler: {fileID: 1538089032}
 --- !u!4 &1206865393
 Transform:
   m_ObjectHideFlags: 0
@@ -596,8 +597,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1269476303}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: -200}
+  m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -633,7 +634,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+  zoomOutSlowDown: 0.2
   rotation: 40
+  myCamera: {fileID: 963194227}
 --- !u!4 &1538089033
 Transform:
   m_ObjectHideFlags: 0
